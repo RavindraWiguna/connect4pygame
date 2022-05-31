@@ -19,7 +19,7 @@ min_species_size   = 2
 # node activation options
 activation_default      = relu
 activation_mutate_rate  = 0.01
-activation_options      = sigmoid relu
+activation_options      = relu swish mish
 
 # node aggregation options
 aggregation_default     = sum
@@ -56,8 +56,8 @@ node_delete_prob        = 0.2
 
 # network parameters
 num_hidden              = 0
-num_inputs              = 400
-num_outputs             = 4
+num_inputs              = 42
+num_outputs             = 7
 
 # node response options
 response_init_mean      = 1.0
