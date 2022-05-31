@@ -8,9 +8,10 @@ pygame.init()
 
 # Contain the reward, game_over, and score of the game, and just_eat_food
 class GameInformation:
-    def __init__(self, isWin, winner) -> None:
-        self.isWIn = isWin
+    def __init__(self, isWin, winner, last_move_valid) -> None:
+        self.isWin = isWin
         self.winner = winner
+        self.last_move_valid = last_move_valid
 
 class Game:
     SCORE_FONT = pygame.font.SysFont('comicsans', 50)
@@ -50,12 +51,18 @@ class Game:
     def get_p2_pov(self):
         return self.board*-1
     
-    def move(self, col):
+    def check_valid_move(self, col):
         if(col >= self.total_col):
             raise ValueError(f"Argument for col:={col} exceed total column:={self.total_col}")
         
         if(self.col_base[col] < 0):
-            print(f"This col: {col} is full")
+            # print(f"This col: {col} is full")
+            return 0
+        return 1
+
+    def move(self, col):
+        isValid = self.check_valid_move(col)
+        if(not isValid):
             return 0
 
         fill_id = col + self.col_base[col]*7
@@ -156,7 +163,7 @@ class Game:
 
     def check_win(self):
         isWin = False
-        winner = None
+        winner = 8# random non -1 or 1
         # sliding vvindow style bby
         for i in range(self.board.size):
             if(self.check_horizontal_win(i)):
@@ -196,9 +203,9 @@ class Game:
         Executes a single game loop.
         :returns: GameInformation instance
         """
-        self.move(col_act)
+        last_move_valid = self.move(col_act)
         isWin, winner = self.check_win()
-        game_info = GameInformation(isWin, winner)
+        game_info = GameInformation(isWin, winner, last_move_valid)
         
         return game_info
     
