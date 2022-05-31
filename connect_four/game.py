@@ -8,8 +8,9 @@ pygame.init()
 
 # Contain the reward, game_over, and score of the game, and just_eat_food
 class GameInformation:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, isWin, winner) -> None:
+        self.isWIn = isWin
+        self.winner = winner
 
 class Game:
     SCORE_FONT = pygame.font.SysFont('comicsans', 50)
@@ -155,21 +156,26 @@ class Game:
 
     def check_win(self):
         isWin = False
+        winner = None
         # sliding vvindow style bby
         for i in range(self.board.size):
             if(self.check_horizontal_win(i)):
                 isWin = True
+                winner = self.board[i]
                 break
             if(self.check_vertical_win(i)):
                 isWin=True
+                winner = self.board[i]
                 break
             if(self.check_negative_diagonal_win(i)):
                 isWin=True
+                winner = self.board[i]
                 break
             if(self.check_positive_diagonal_win(i)):
                 isWin=True
+                winner = self.board[i]
                 break
-        return isWin
+        return isWin, winner
 
     def draw_board(self):
         for i in range(self.total_row):
@@ -191,7 +197,8 @@ class Game:
         :returns: GameInformation instance
         """
         self.move(col_act)
-        game_info = GameInformation()
+        isWin, winner = self.check_win()
+        game_info = GameInformation(isWin, winner)
         
         return game_info
     

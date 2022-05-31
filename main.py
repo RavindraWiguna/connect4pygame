@@ -18,9 +18,13 @@ def main():
                 break
         
         col = int(input("col: "))
-        game.loop(col)
+        result = game.loop(col)
         game.draw()
         pygame.display.update()
+
+        if(result.isWIn):
+            isRunning = False
+            print(f"This player: {result.winner}, win")
 
 
 main()
