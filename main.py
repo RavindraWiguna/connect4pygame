@@ -22,7 +22,7 @@ def main():
         game.draw()
         pygame.display.update()
 
-        if(result.isWIn):
+        if(result.isWin):
             isRunning = False
             print(f"This player: {result.winner}, win")
 
