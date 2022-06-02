@@ -8,18 +8,19 @@ pygame.init()
 
 # Contain the reward, game_over, and score of the game, and just_eat_food
 class GameInformation:
-    def __init__(self, isWin, winner, last_move_valid) -> None:
+    def __init__(self, isWin, winner, isDraw) -> None:
         self.isWin = isWin
         self.winner = winner
-        self.last_move_valid = last_move_valid
+        self.isDraw = isDraw
 
 class Game:
     SCORE_FONT = pygame.font.SysFont('comicsans', 50)
-    P1_COLOR = (200, 200, 0)
-    P2_COLOR = (200, 0, 0)
+    P2_COLOR = (200, 200, 0)
+    P1_COLOR = (200, 0, 0)
     EMPTY_COLOR = (0, 0, 100)
     BG = (20, 20, 200)
     COLOR_DICT = {-1: P2_COLOR, 0:EMPTY_COLOR, 1:P1_COLOR}
+    DISK_DICT ={-1: "R", 1:"Y"}
     FILL = (1, -1)
     
 
@@ -39,6 +40,10 @@ class Game:
         self.turn = 0
         # base for each col for easier filling
         self.col_base = np.array([5]*self.total_col)
+        # total disk in each column
+        # self.col_fill = np.array([0]*self.total_col)
+        # history of move
+        self.history_move = []
         # connect four board (p1 prespective)
         '''
         0 = empty
@@ -47,6 +52,14 @@ class Game:
         default is player 1 prespective
         '''
         self.board = np.array([0]*self.total_col*self.total_row, np.int8)
+
+    def load_history(self, historyMove):
+        # this function is used to change the board according to history
+        # print("loading history")
+        for move in historyMove:
+            move = int(move)
+            self.move(move)
+        # print("successfully loaded")
 
     def get_p2_pov(self):
         return self.board*-1
@@ -60,6 +73,13 @@ class Game:
             return 0
         return 1
 
+    def get_available_move(self):
+        avm = []
+        for i, colbase in enumerate(self.col_base):
+            if(colbase > -1):
+                avm.append(i)
+        return avm
+
     def move(self, col):
         isValid = self.check_valid_move(col)
         if(not isValid):
@@ -70,10 +90,17 @@ class Game:
         self.board[fill_id] = self.FILL[self.turn&1]
         # update the base
         self.col_base[col]-=1
+        # update the fill
+        # self.col_fill[col]+=1
+        # update history move
+        self.history_move.append(str(col))
         # update the turn
         self.turn +=1
         return 1
     
+    def get_history_move_str(self):
+        return ''.join(self.history_move)
+
     def check_horizontal_win(self, id):
         if(self.board[id]==0):
             # skipp bruh
@@ -196,7 +223,7 @@ class Game:
     def draw(self):
         self.window.fill(self.BG)
         self.draw_board()
-
+    
     # Do a one game loop (move, update, draw)
     def loop(self, col_act):
         """
@@ -205,7 +232,17 @@ class Game:
         """
         last_move_valid = self.move(col_act)
         isWin, winner = self.check_win()
-        game_info = GameInformation(isWin, winner, last_move_valid)
+        # 'draw' equal case
+        isDraw = True
+        for i in range(7):
+            if(self.check_valid_move(i)):
+                isDraw = False
+                break
+        if(isDraw):
+            # say it win, but neither won
+            isWin = True
+            winner = 8
+        game_info = GameInformation(isWin, winner, isDraw)
         
         return game_info
     
