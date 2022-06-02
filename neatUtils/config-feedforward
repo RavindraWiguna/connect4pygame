@@ -1,8 +1,8 @@
 [NEAT]
-fitness_criterion      = max
-fitness_threshold      = 1024
+fitness_criterion      = mean
+fitness_threshold      = 5
 no_fitness_termination = False
-pop_size               = 100
+pop_size               = 51
 reset_on_extinction    = False
 
 [DefaultStagnation]
@@ -19,7 +19,7 @@ min_species_size   = 2
 # node activation options
 activation_default      = relu
 activation_mutate_rate  = 0.01
-activation_options      = relu swish mish
+activation_options      = relu sigmoid gauss
 
 # node aggregation options
 aggregation_default     = sum
