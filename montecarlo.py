@@ -1,10 +1,9 @@
-from random import choice, randint
-from attr import ib
-from pandas import isna
+from random import choice
 import pygame
 from connect_four.game import Game
 from math import sqrt, log, inf
 from time import time as curtime
+from numexpr import evaluate
 
 class MonteCarloNode:
     def __init__(self, historyMove:str, exploration_param, isPlayerOne:bool) -> None:
@@ -49,13 +48,15 @@ class MonteCarloNode:
             return inf
         
         # exploitation term is the average score
-        exploit_term = self.total_score/self.total_visit
+        # exploit_term = 
         # exploration term is this formula (still don't know why)
         # but the point is less visited => bigger score => more likely to be visited ==> exploration
-        explore_term = self.c * sqrt(log(self.total_parrent_visit)/self.total_visit)
-        ucb_total =exploit_term + explore_term
+        # explore_term = 
+        # ucb_total =exploit_term + explore_term
         # print(f"ucb: {ucb_total}| {self.history}")
-        return ucb_total
+        return self.total_score/self.total_visit + self.c * sqrt(log(self.total_parrent_visit)/self.total_visit)
+        # total_score, total_visit, c, total_parrent_visit = self.total_score, self.total_visit, self.c, self.total_parrent_visit
+        # return evaluate("total_score/total_visit + c * sqrt(log(total_parrent_visit)/total_visit)")
     
     def update_children_parrent_visit(self):
         for i in range(self.total_child):
@@ -72,9 +73,9 @@ class ConnectFourMC:
     def selection(self, initState:MonteCarloNode):
         isTraversing = True
         current = initState
-        depth = 0
+        # depth = 0
         while isTraversing:
-            depth+=1
+            # depth+=1
             # dont ever find children here
             # check if current is leaf node
             if(current.total_child == 0):
@@ -87,9 +88,9 @@ class ConnectFourMC:
             current = max(current.children, key=lambda x: x.calculate_ucb())
         
         # print(f"giving:{current.history}")
-        if(self.max_depth < depth):
-            self.max_depth = depth
-            print(f"depth:{depth} ")
+        # if(self.max_depth < depth):
+        #     self.max_depth = depth
+        #     print(f"depth:{depth} ")
         return current
 
 
@@ -107,16 +108,12 @@ class ConnectFourMC:
             game_info = the_game.loop(choice(the_game.get_available_move()))
             isNotOver = not game_info.isWin
         
-        # ah so it is game over
-        if(game_info.isDraw):
-            return 0
-        
         # not draw, first player win
         if(game_info.winner == 1):
             # some transform logic for relativity
-            return 100 * (-1+ 2*node.isPlayerOne)
+            return 100 * (-1+ 2*node.isPlayerOne) * (not game_info.isDraw)
         # oh player 2 won
-        return 100 * (1 -2*node.isPlayerOne)
+        return 100 * (1 -2*node.isPlayerOne)* (not game_info.isDraw)
         
 
         
@@ -159,11 +156,11 @@ class ConnectFourMC:
         self.max_depth = 0
         print("monte carlo search start...")
         start_time = curtime()
-        init_state = MonteCarloNode(historyMove, 100, isPlayerOne)
+        init_state = MonteCarloNode(historyMove, 2, isPlayerOne)
         # generate current tree
         init_state.find_children()
         # total_expand = init_state.total_child
-        # total_expand = 1
+        total_expand = 1
         # deepest = 0
         best_node = init_state.children[0]
         choosen = best_node
@@ -186,7 +183,7 @@ class ConnectFourMC:
                 # ah already visited, so expand
                 choosen = self.expansion(best_node)
                 # deepest+=1
-            # total_expand += 1
+            total_expand += 1
             # print("start simul")
             # if(not (best_node.total_visit > 0) ^ (choosen.history == best_node.history)):
             #     break
@@ -198,7 +195,7 @@ class ConnectFourMC:
             # print(best_node.total_visit > 0)
             # print((choosen.history == best_node.history))
         
-        # print(f"we have iterated: {total_expand}")
+        print(f"we have iterated: {total_expand}")
         return self.get_best_move(init_state)
 
 
@@ -209,7 +206,7 @@ def main():
     game = Game(win, WIDTH, HEIGHT, BLOCK_SIZE)
     isRunning = True
     clock = pygame.time.Clock()
-    bot = ConnectFourMC(16.0)
+    bot = ConnectFourMC(15.0)
     game.draw()
     pygame.display.update()
     rangeCol = []
