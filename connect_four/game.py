@@ -121,11 +121,7 @@ class Game:
             return True
         return False
     
-    def check_vertical_win(self, id):
-        if(id > 20):
-            # can not go down sir
-            return False
-        
+    def check_vertical_win(self, id):        
         # get value to check
         val_check = self.board[id]
         # check vertically syre
@@ -143,8 +139,6 @@ class Game:
     def check_positive_diagonal_win(self, id):
         if(id % 7 > 3):
             return False
-        if(id < 21):
-            return False
         
         val_check = self.board[id]
         totalMatch = 0
@@ -160,8 +154,6 @@ class Game:
     
     def check_negative_diagonal_win(self, id):
         if(id % 7 < 3):
-            return False
-        if(id < 21):
             return False
         
         val_check = self.board[id]
@@ -183,23 +175,28 @@ class Game:
         for i in range(self.board.size):
             if(self.board[i]==0):
                 break
-            
+
             if(self.check_horizontal_win(i)):
                 isWin = True
                 winner = self.board[i]
                 break
-            if(self.check_vertical_win(i)):
-                isWin=True
-                winner = self.board[i]
-                break
-            if(self.check_negative_diagonal_win(i)):
-                isWin=True
-                winner = self.board[i]
-                break
-            if(self.check_positive_diagonal_win(i)):
-                isWin=True
-                winner = self.board[i]
-                break
+            
+            if(i > 20):
+                # check all diagonal
+                if(self.check_negative_diagonal_win(i)):
+                    isWin=True
+                    winner = self.board[i]
+                    break
+                if(self.check_positive_diagonal_win(i)):
+                    isWin=True
+                    winner = self.board[i]
+                    break
+            else:
+                if(self.check_vertical_win(i)):
+                    isWin=True
+                    winner = self.board[i]
+                    break
+
         return isWin, winner
 
     def draw_board(self):
