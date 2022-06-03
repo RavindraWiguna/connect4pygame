@@ -102,10 +102,6 @@ class Game:
         return ''.join(self.history_move)
 
     def check_horizontal_win(self, id):
-        if(self.board[id]==0):
-            # skipp bruh
-            return False
-        
         if(id%7 > 3):
             # can not go horizontally 4 times
             return False
@@ -126,8 +122,6 @@ class Game:
         return False
     
     def check_vertical_win(self, id):
-        if(self.board[id]==0):
-            return False
         if(id > 20):
             # can not go down sir
             return False
@@ -147,9 +141,6 @@ class Game:
         return False
     
     def check_positive_diagonal_win(self, id):
-        if(self.board[id]==0):
-            return False
-        
         if(id % 7 > 3):
             return False
         if(id < 21):
@@ -168,9 +159,6 @@ class Game:
         return False
     
     def check_negative_diagonal_win(self, id):
-        if(self.board[id]==0):
-            return False
-        
         if(id % 7 < 3):
             return False
         if(id < 21):
@@ -193,6 +181,9 @@ class Game:
         winner = 8# random non -1 or 1
         # sliding vvindow style bby
         for i in range(self.board.size):
+            if(self.board[i]==0):
+                break
+            
             if(self.check_horizontal_win(i)):
                 isWin = True
                 winner = self.board[i]
