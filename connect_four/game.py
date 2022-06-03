@@ -168,36 +168,49 @@ class Game:
             return True
         return False
 
-    def check_win(self):
+    def check_win(self, i):
         isWin = False
         winner = 8# random non -1 or 1
-        # sliding vvindow style bby
-        for i in range(self.board.size):
-            if(self.board[i]==0):
-                break
+        if(self.board[i]==0):
+            return False
 
-            if(self.check_horizontal_win(i)):
-                isWin = True
+        if(self.check_horizontal_win(i)):
+            isWin = True
+            winner = self.board[i]
+            return isWin, winner
+
+        if(i > 20):
+            # check all diagonal
+            if(self.check_negative_diagonal_win(i)):
+                isWin=True
                 winner = self.board[i]
-                break
-            
-            if(i > 20):
-                # check all diagonal
-                if(self.check_negative_diagonal_win(i)):
-                    isWin=True
-                    winner = self.board[i]
-                    break
-                if(self.check_positive_diagonal_win(i)):
-                    isWin=True
-                    winner = self.board[i]
-                    break
-            else:
-                if(self.check_vertical_win(i)):
-                    isWin=True
-                    winner = self.board[i]
-                    break
+                return isWin, winner
+            if(self.check_positive_diagonal_win(i)):
+                isWin=True
+                winner = self.board[i]
+                return isWin, winner
+        else:
+            if(self.check_vertical_win(i)):
+                isWin=True
+                winner = self.board[i]
+                return isWin, winner
 
         return isWin, winner
+    
+    def fast_check_win(self):
+        isWin = False
+        winner = 8
+        for col in range(self.total_col):
+            if( isWin ):
+                break
+
+            for row in range(self.col_base[col]+1, 6):
+                isWin, winner = self.check_win(col + row*self.total_col)
+                if(isWin):
+                    break
+        
+        return isWin, winner
+
 
     def draw_board(self):
         for i in range(self.total_row):
@@ -219,7 +232,7 @@ class Game:
         :returns: GameInformation instance
         """
         last_move_valid = self.move(col_act)
-        isWin, winner = self.check_win()
+        isWin, winner = self.fast_check_win()
         # 'draw' equal case
         isDraw = True
         for i in range(7):
