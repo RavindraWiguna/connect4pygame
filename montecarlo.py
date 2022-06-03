@@ -243,7 +243,12 @@ def main():
             print(f"This player: {result.winner}, win")
 
 
-main()
+if __name__=="__main__":
+    # main()
+    bot = ConnectFourMC(10.0)
+    game = Game(None, 7, 6, 1)
+    import cProfile
+    cProfile.run("bot.monte_carlo_search(game.get_history_move_str(), True)")
 
 
     
