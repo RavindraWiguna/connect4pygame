@@ -67,11 +67,14 @@ A Class of a single connect four player
 class ConnectFourMC:
     def __init__(self, time_limit) -> None:
         self.time_limit = time_limit
+        self.max_depth = 0
 
     def selection(self, initState:MonteCarloNode):
         isTraversing = True
         current = initState
+        depth = 0
         while isTraversing:
+            depth+=1
             # dont ever find children here
             # check if current is leaf node
             if(current.total_child == 0):
@@ -84,6 +87,9 @@ class ConnectFourMC:
             current = max(current.children, key=lambda x: x.calculate_ucb())
         
         # print(f"giving:{current.history}")
+        if(self.max_depth < depth):
+            self.max_depth = depth
+            print(f"depth:{depth} ")
         return current
 
 
@@ -140,9 +146,9 @@ class ConnectFourMC:
         move = None
         curMax = -inf
         for i in range(node.total_child):
-            local_ucb = node.children[i].calculate_ucb()
-            if(local_ucb > curMax):
-                curMax = local_ucb
+            local_avg_score = node.children[i].total_score/node.children[i].total_visit
+            if(local_avg_score > curMax):
+                curMax = local_avg_score
                 move = node.child_id_to_move[i]
         
         return move
@@ -150,13 +156,15 @@ class ConnectFourMC:
 
 
     def monte_carlo_search(self, historyMove, isPlayerOne):
+        self.max_depth = 0
         print("monte carlo search start...")
         start_time = curtime()
-        init_state = MonteCarloNode(historyMove, 14, isPlayerOne)
+        init_state = MonteCarloNode(historyMove, 100, isPlayerOne)
         # generate current tree
         init_state.find_children()
         # total_expand = init_state.total_child
-        total_expand = 1
+        # total_expand = 1
+        # deepest = 0
         best_node = init_state.children[0]
         choosen = best_node
         # print(best_node.total_visit > 0 ^ (choosen.history == best_node.history))
@@ -177,7 +185,8 @@ class ConnectFourMC:
                 # print("EXPAAAANDER")
                 # ah already visited, so expand
                 choosen = self.expansion(best_node)
-            total_expand += 1
+                # deepest+=1
+            # total_expand += 1
             # print("start simul")
             # if(not (best_node.total_visit > 0) ^ (choosen.history == best_node.history)):
             #     break
@@ -189,7 +198,7 @@ class ConnectFourMC:
             # print(best_node.total_visit > 0)
             # print((choosen.history == best_node.history))
         
-        print(f"we have iterated: {total_expand}")
+        # print(f"we have iterated: {total_expand}")
         return self.get_best_move(init_state)
 
 
@@ -200,7 +209,7 @@ def main():
     game = Game(win, WIDTH, HEIGHT, BLOCK_SIZE)
     isRunning = True
     clock = pygame.time.Clock()
-    bot = ConnectFourMC(30.0)
+    bot = ConnectFourMC(16.0)
     game.draw()
     pygame.display.update()
     rangeCol = []
@@ -244,11 +253,11 @@ def main():
 
 
 if __name__=="__main__":
-    # main()
-    bot = ConnectFourMC(10.0)
-    game = Game(None, 7, 6, 1)
-    import cProfile
-    cProfile.run("bot.monte_carlo_search(game.get_history_move_str(), True)")
+    main()
+    # bot = ConnectFourMC(10.0)
+    # game = Game(None, 7, 6, 1)
+    # import cProfile
+    # cProfile.run("bot.monte_carlo_search(game.get_history_move_str(), True)")
 
 
     
