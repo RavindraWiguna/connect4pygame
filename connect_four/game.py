@@ -22,6 +22,12 @@ class Game:
     COLOR_DICT = {-1: P2_COLOR, 0:EMPTY_COLOR, 1:P1_COLOR}
     DISK_DICT ={-1: "R", 1:"Y"}
     FILL = (1, -1)
+    TRANSFORM_1D = [[0,1,2,3,4,5,6],
+                    [7,8,9,10,11,12,13],
+                    [14,15,16,17,18,19,20],
+                    [21,22,23,24,25,26,27],
+                    [28,29,30,31,32,33,34],
+                    [35,36,37,38,39,40,41]]
     
 
     def __init__(self, window, width, height, block_size) -> None:
@@ -65,8 +71,8 @@ class Game:
         return self.board*-1
     
     def check_valid_move(self, col):
-        if(col >= self.total_col):
-            raise ValueError(f"Argument for col:={col} exceed total column:={self.total_col}")
+        # if(col >= self.total_col):
+            # raise ValueError(f"Argument for col:={col} exceed total column:={self.total_col}")
         
         if(self.col_base[col] < 0):
             # print(f"This col: {col} is full")
@@ -78,6 +84,7 @@ class Game:
         for i, colbase in enumerate(self.col_base):
             if(colbase > -1):
                 avm.append(i)
+        # print(len(avm))
         return avm
 
     def move(self, col):
@@ -171,8 +178,9 @@ class Game:
     def check_win(self, i):
         isWin = False
         winner = 8# random non -1 or 1
-        if(self.board[i]==0):
-            return False
+        # if(self.board[i]==0):
+        #     print("anjir kok 0")
+        #     return False
 
         if(self.check_horizontal_win(i)):
             isWin = True
@@ -205,7 +213,7 @@ class Game:
                 break
 
             for row in range(self.col_base[col]+1, 6):
-                isWin, winner = self.check_win(col + row*self.total_col)
+                isWin, winner = self.check_win(self.TRANSFORM_1D[row][col])
                 if(isWin):
                     break
         
@@ -231,18 +239,12 @@ class Game:
         Executes a single game loop.
         :returns: GameInformation instance
         """
-        last_move_valid = self.move(col_act)
+        self.move(col_act)
         isWin, winner = self.fast_check_win()
         # 'draw' equal case
-        isDraw = True
-        for i in range(7):
-            if(self.check_valid_move(i)):
-                isDraw = False
-                break
-        if(isDraw):
-            # say it win, but neither won
-            isWin = True
-            winner = 8
+
+        isDraw = not isWin and len(self.history_move) == 42
+        isWin = isWin or isDraw
         game_info = GameInformation(isWin, winner, isDraw)
         
         return game_info
